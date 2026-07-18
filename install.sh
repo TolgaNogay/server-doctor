@@ -16,17 +16,14 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-# Önceki kurulumu temizle (varsa)
-if [ -d "$INSTALL_DIR" ]; then
-    echo "Önceki kurulum bulundu, güncelleniyor..."
-    rm -rf "$INSTALL_DIR"
+# Eğer /opt/wcr-doctor dizininde değilsek ve git varsa depoyu çek
+if [ ! -d "$INSTALL_DIR/.git" ]; then
+    echo "GitHub deposundan dosyalar $INSTALL_DIR dizinine indiriliyor..."
+    git clone https://github.com/TolgaNogay/server-doctor.git "$INSTALL_DIR"
+else
+    echo "Mevcut depo güncelleniyor..."
+    cd "$INSTALL_DIR" && git pull origin main
 fi
-
-echo "Dosyalar $INSTALL_DIR dizinine kopyalanıyor..."
-mkdir -p "$INSTALL_DIR"
-
-# Bulunduğumuz dizini kopyala (kurulumun projenin kökünden yapıldığı varsayılıyor)
-cp -r ./* "$INSTALL_DIR/"
 
 echo "Çalıştırılabilir dosya için symlink oluşturuluyor..."
 if [ -f "$BIN_DIR/$EXECUTABLE" ]; then
