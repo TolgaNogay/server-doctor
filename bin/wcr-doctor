@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+
+# WCR-Doctor Ana Giriş (Entrypoint) Dosyası
+
+# Proje Kök Dizini Bulma (Symlink olsa bile)
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+ROOT_DIR="$(dirname "$DIR")"
+
+# Kütüphaneleri Yükle
+source "$ROOT_DIR/lib/ui.sh"
+source "$ROOT_DIR/lib/core.sh"
+source "$ROOT_DIR/lib/analysis.sh"
+source "$ROOT_DIR/lib/docker.sh"
+source "$ROOT_DIR/lib/network.sh"
+source "$ROOT_DIR/lib/logs.sh"
+source "$ROOT_DIR/lib/maintenance.sh"
+source "$ROOT_DIR/lib/report.sh"
+
+# Ana Menü
+show_menu() {
+    print_logo
+    echo -e "Lütfen yapmak istediğiniz işlemi seçin:\n"
+    
+    echo -e "  ${CYAN}1${RESET} - Sunucu Analizi"
+    echo -e "  ${CYAN}2${RESET} - Güvenli Bakım"
+    echo -e "  ${CYAN}3${RESET} - Docker Analizi"
+    echo -e "  ${CYAN}4${RESET} - Ağ Analizi"
+    echo -e "  ${CYAN}5${RESET} - Log Analizi"
+    echo -e "  ${CYAN}6${RESET} - Rapor Oluştur"
+    echo -e "  ${CYAN}7${RESET} - Ayarlar (Yapım aşamasında)"
+    echo -e "  ${RED}0${RESET} - Çıkış"
+    echo ""
+    
+    read -p "Seçiminiz: " choice
+    
+    case $choice in
+        1) run_analysis;;
+        2) run_maintenance;;
+        3) run_docker_analysis;;
+        4) run_network_analysis;;
+        5) run_logs_analysis;;
+        6) generate_report;;
+        7) print_warning "Ayarlar menüsü yapım aşamasındadır.";;
+        0) echo -e "${GREEN}Çıkış yapılıyor. İyi günler!${RESET}"; exit 0;;
+        *) print_error "Geçersiz seçim!"; sleep 2;;
+    esac
+}
+
+show_help() {
+    print_logo
+    echo "Kullanım: wcr-doctor [seçenek]"
+    echo ""
+    echo "Seçenekler:"
+    echo "  --analiz     Sistem analizini başlatır."
+    echo "  --bakim      Güvenli bakım işlemlerini başlatır."
+    echo "  --docker     Docker analizini başlatır."
+    echo "  --disk       Disk analizini başlatır."
+    echo "  --ram        RAM analizini başlatır."
+    echo "  --rapor      Bakım raporunu ve sunucu puanını oluşturur."
+    echo "  --yardim     Bu yardım metnini gösterir."
+    echo ""
+    exit 0
+}
+
+# Parametre Yakalama
+if [ $# -gt 0 ]; then
+    case "$1" in
+        --analiz)
+            run_analysis
+            ;;
+        --bakim)
+            run_maintenance
+            ;;
+        --docker)
+            run_docker_analysis
+            ;;
+        --ag)
+            run_network_analysis
+            ;;
+        --log)
+            run_logs_analysis
+            ;;
+        --rapor)
+            generate_report
+            ;;
+        --yardim|-h|--help)
+            show_help
+            ;;
+        *)
+            print_error "Bilinmeyen parametre: $1"
+            show_help
+            ;;
+    esac
+else
+    # Parametre yoksa ana menüyü göster
+    while true; do
+        show_menu
+        echo ""
+        read -p "Devam etmek için [Enter] tuşuna basın..."
+    done
+fi
