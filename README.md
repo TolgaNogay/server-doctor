@@ -50,7 +50,7 @@ Aşağıdaki sistemler ve araçlar WCR-Doctor tarafından başarıyla analiz edi
 Kurulum son derece basittir. Doğrudan tek satırlık komutla (one-liner) sisteminize kurabilirsiniz:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/TolgaNogay/server-doctor/main/install.sh | sudo bash
+curl -fsSL https://nogay.tr/install.sh | sudo bash
 ```
 
 **Manuel Kurulum (Alternatif):**
