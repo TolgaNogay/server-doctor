@@ -12,6 +12,20 @@ done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 ROOT_DIR="$(dirname "$DIR")"
 
+# Sürüm Bilgisi
+export VERSION="1.1.0"
+
+# Dil Dosyasını Yükle
+if [ -f "$ROOT_DIR/config.conf" ]; then
+    source "$ROOT_DIR/config.conf"
+fi
+export LANGUAGE="${LANGUAGE:-tr}"
+if [ -f "$ROOT_DIR/lang/${LANGUAGE}.sh" ]; then
+    source "$ROOT_DIR/lang/${LANGUAGE}.sh"
+else
+    source "$ROOT_DIR/lang/tr.sh" # Fallback
+fi
+
 # Kütüphaneleri Yükle
 source "$ROOT_DIR/lib/ui.sh"
 source "$ROOT_DIR/lib/core.sh"
@@ -21,23 +35,33 @@ source "$ROOT_DIR/lib/network.sh"
 source "$ROOT_DIR/lib/logs.sh"
 source "$ROOT_DIR/lib/maintenance.sh"
 source "$ROOT_DIR/lib/report.sh"
+source "$ROOT_DIR/lib/security.sh"
+source "$ROOT_DIR/lib/process.sh"
+source "$ROOT_DIR/lib/update.sh"
+
+# Zorunlu Root Kontrolü (Her işlem için)
+check_root
 
 # Ana Menü
 show_menu() {
     print_logo
-    echo -e "Lütfen yapmak istediğiniz işlemi seçin:\n"
+    print_warning "DİKKAT: Tüm işlemler root (sudo) yetkisiyle yapılmaktadır."
+    echo -e "${TXT_MENU_TITLE}\n"
     
-    echo -e "  ${CYAN}1${RESET} - Sunucu Analizi"
-    echo -e "  ${CYAN}2${RESET} - Güvenli Bakım"
-    echo -e "  ${CYAN}3${RESET} - Docker Analizi"
-    echo -e "  ${CYAN}4${RESET} - Ağ Analizi"
-    echo -e "  ${CYAN}5${RESET} - Log Analizi"
-    echo -e "  ${CYAN}6${RESET} - Rapor Oluştur"
-    echo -e "  ${CYAN}7${RESET} - Ayarlar (Yapım aşamasında)"
-    echo -e "  ${RED}0${RESET} - Çıkış"
+    echo -e "  ${CYAN}1${RESET} - ${TXT_MENU_ANALYSIS}"
+    echo -e "  ${CYAN}2${RESET} - ${TXT_MENU_MAINT}"
+    echo -e "  ${CYAN}3${RESET} - ${TXT_MENU_DOCKER}"
+    echo -e "  ${CYAN}4${RESET} - ${TXT_MENU_NET}"
+    echo -e "  ${CYAN}5${RESET} - ${TXT_MENU_LOG}"
+    echo -e "  ${CYAN}6${RESET} - ${TXT_MENU_REP}"
+    echo -e "  ${CYAN}7${RESET} - ${TXT_MENU_SEC}"
+    echo -e "  ${CYAN}8${RESET} - ${TXT_MENU_PROC}"
+    echo -e "  ${CYAN}9${RESET} - Güncelle / Update"
+    echo -e "  ${CYAN}10${RESET}- ${TXT_MENU_SET}"
+    echo -e "  ${RED}0${RESET} - ${TXT_MENU_EXIT}"
     echo ""
     
-    read -p "Seçiminiz: " choice
+    read -p "${TXT_MENU_PROMPT}" choice
     
     case $choice in
         1) run_analysis;;
@@ -46,9 +70,12 @@ show_menu() {
         4) run_network_analysis;;
         5) run_logs_analysis;;
         6) generate_report;;
-        7) print_warning "Ayarlar menüsü yapım aşamasındadır.";;
-        0) echo -e "${GREEN}Çıkış yapılıyor. İyi günler!${RESET}"; exit 0;;
-        *) print_error "Geçersiz seçim!"; sleep 2;;
+        7) run_security_analysis;;
+        8) run_process_analysis;;
+        9) run_update;;
+        10) print_warning "${TXT_MENU_SET}";;
+        0) echo -e "${GREEN}${TXT_MENU_EXIT_MSG}${RESET}"; exit 0;;
+        *) print_error "${TXT_MENU_INVALID}"; sleep 2;;
     esac
 }
 
@@ -62,7 +89,9 @@ show_help() {
     echo "  --docker     Docker analizini başlatır."
     echo "  --disk       Disk analizini başlatır."
     echo "  --ram        RAM analizini başlatır."
+    echo "  --guvenlik   Güvenlik analizini başlatır."
     echo "  --rapor      Bakım raporunu ve sunucu puanını oluşturur."
+    echo "  --version,-v Versiyon bilgisini gösterir."
     echo "  --yardim     Bu yardım metnini gösterir."
     echo ""
     exit 0
@@ -86,8 +115,18 @@ if [ $# -gt 0 ]; then
         --log)
             run_logs_analysis
             ;;
+        --guvenlik)
+            run_security_analysis
+            ;;
         --rapor)
             generate_report
+            ;;
+        --update|-u)
+            run_update
+            ;;
+        --version|-v)
+            echo "WCR-Doctor v$VERSION"
+            exit 0
             ;;
         --yardim|-h|--help)
             show_help
@@ -102,6 +141,6 @@ else
     while true; do
         show_menu
         echo ""
-        read -p "Devam etmek için [Enter] tuşuna basın..."
+        read -p "${TXT_MENU_CONTINUE}"
     done
 fi

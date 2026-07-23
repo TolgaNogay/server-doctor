@@ -53,7 +53,16 @@ Kurulum son derece basittir. Doğrudan tek satırlık komutla (one-liner) sistem
 curl -fsSL https://nogay.tr/install.sh | sudo bash
 ```
 
-**Manuel Kurulum (Alternatif):**
+**Belirli Bir Sürümü İndirme (GitHub Releases):**
+Belirli ve kararlı bir versiyon kullanmak isterseniz, [GitHub Releases](https://github.com/TolgaNogay/server-doctor/releases) sayfasından ilgili `.zip` dosyasını indirebilirsiniz.
+```bash
+wget https://github.com/TolgaNogay/server-doctor/releases/latest/download/wcr-doctor.zip
+unzip wcr-doctor.zip -d server-doctor
+cd server-doctor
+sudo ./install.sh
+```
+
+**Manuel Kurulum (Geliştirici Sürümü):**
 ```bash
 # Projeyi indirin
 git clone https://github.com/TolgaNogay/server-doctor.git

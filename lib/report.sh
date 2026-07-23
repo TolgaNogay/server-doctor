@@ -37,6 +37,27 @@ generate_report() {
     if [ "$load_int" -ge "$cores" ]; then
         score=$((score - 10))
     fi
+
+    # 4. Kritik Servis Kontrolü
+    local services=("nginx" "apache2" "mysql" "postgresql" "docker")
+    for svc in "${services[@]}"; do
+        if systemctl list-unit-files "${svc}.service" >/dev/null 2>&1 || systemctl list-unit-files "${svc}.socket" >/dev/null 2>&1; then
+            if ! systemctl is-active --quiet "$svc"; then
+                score=$((score - 5))
+            fi
+        fi
+    done
+
+    # 5. Temel Güvenlik Kontrolü
+    if command -v ufw >/dev/null 2>&1; then
+        if ! sudo ufw status | grep -q -E "Status: active|Durum: etkin"; then
+            score=$((score - 5))
+        fi
+    fi
+    
+    if [ -f /etc/ssh/sshd_config ] && grep -q -E "^PermitRootLogin yes" /etc/ssh/sshd_config; then
+        score=$((score - 10))
+    fi
     
     # Puanın eksiye düşmemesi için
     if [ "$score" -lt 0 ]; then score=0; fi
@@ -58,6 +79,6 @@ generate_report() {
     echo -e "${BOLD}Sunucu Puanı:${RESET} ${score_color}${score} / 100${RESET}"
     echo -e "${BOLD}Durum:${RESET}        ${status_text}"
     echo ""
-    echo -e "${GRAY}* Puanlama; anlık CPU yükü, RAM ve Disk doluluğu üzerinden hesaplanmıştır.${RESET}"
+    echo -e "${GRAY}* Puanlama; anlık CPU yükü, RAM, Disk doluluğu, servis durumları ve güvenlik yapılandırması üzerinden hesaplanmıştır.${RESET}"
     echo ""
 }

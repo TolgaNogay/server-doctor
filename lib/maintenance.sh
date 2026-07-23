@@ -47,7 +47,7 @@ run_maintenance() {
     print_header "3. Docker Temizliği"
     if command_exists docker; then
         echo -e "${GRAY}Kullanılmayan (dangling) imajlar siliniyor...${RESET}"
-        docker image prune -a -f >/dev/null 2>&1
+        docker image prune -f >/dev/null 2>&1
         
         echo -e "${GRAY}Kullanılmayan volume'lar siliniyor...${RESET}"
         docker volume prune -f >/dev/null 2>&1

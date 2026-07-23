@@ -25,6 +25,22 @@ else
     cd "$INSTALL_DIR" && git pull origin main
 fi
 
+# Dil Seçimi (Language Selection)
+echo ""
+echo "Lütfen dil seçin / Please select your language:"
+echo "1) Türkçe (Default)"
+echo "2) English"
+read -p "Select [1/2]: " lang_choice
+
+if [ "$lang_choice" = "2" ]; then
+    sed -i 's/^LANGUAGE="tr"/LANGUAGE="en"/' "$INSTALL_DIR/config.conf"
+    echo "Language set to English."
+else
+    sed -i 's/^LANGUAGE="en"/LANGUAGE="tr"/' "$INSTALL_DIR/config.conf"
+    echo "Dil Türkçe olarak ayarlandı."
+fi
+
+
 echo "Çalıştırılabilir dosya için symlink oluşturuluyor..."
 if [ -f "$BIN_DIR/$EXECUTABLE" ]; then
     rm "$BIN_DIR/$EXECUTABLE"

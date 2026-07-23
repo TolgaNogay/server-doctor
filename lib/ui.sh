@@ -4,12 +4,13 @@
 
 # Renk Tanımlamaları
 if [ -t 1 ]; then
-    GREEN="\033[32m"
-    YELLOW="\033[33m"
-    RED="\033[31m"
-    BLUE="\033[34m"
-    GRAY="\033[90m"
-    CYAN="\033[36m"
+    # Sleek dark mode / OpenCode style colors
+    GREEN="\033[38;5;114m"   # Soft Green
+    YELLOW="\033[38;5;179m"  # Soft Yellow/Gold
+    RED="\033[38;5;167m"     # Soft Red
+    BLUE="\033[38;5;111m"    # Soft Blue
+    GRAY="\033[38;5;242m"    # Mid Gray
+    CYAN="\033[38;5;73m"     # Soft Cyan
     BOLD="\033[1m"
     RESET="\033[0m"
 else
@@ -34,7 +35,7 @@ print_logo() {
    ▐▙█▟▌▝▚▄▄▖▐▌ ▐▌    ▝▚▄▞▘▐▌  ▐▌▐▙▄▄▖
 EOF
     echo -e "${RESET}"
-    echo -e "   ${BOLD}WCR-Doctor - Sunucu Bakım ve Analiz Aracı${RESET}"
+    echo -e "   ${BOLD}WCR-Doctor (v${VERSION:-1.0.0})${RESET}"
     echo -e "   ${GRAY}https://wcr.one${RESET}"
     echo ""
 }

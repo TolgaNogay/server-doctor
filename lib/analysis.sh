@@ -61,4 +61,19 @@ run_analysis() {
     
     echo -e "${BOLD}Swap Kullanımı:${RESET} ${used_swap}MB / ${total_swap}MB (%${swap_percent})"
     echo ""
+
+    # Kritik Servislerin Durumu
+    print_boxed "KRİTİK SERVİS DURUMLARI" "$BLUE"
+    local services=("nginx" "apache2" "mysql" "postgresql" "docker" "ssh")
+    
+    for svc in "${services[@]}"; do
+        if systemctl list-unit-files "${svc}.service" >/dev/null 2>&1 || systemctl list-unit-files "${svc}.socket" >/dev/null 2>&1; then
+            if systemctl is-active --quiet "$svc"; then
+                echo -e "${BOLD}${svc}:${RESET} \t${GREEN}Aktif${RESET}"
+            else
+                echo -e "${BOLD}${svc}:${RESET} \t${RED}Pasif / Kapalı${RESET}"
+            fi
+        fi
+    done
+    echo ""
 }

@@ -13,7 +13,7 @@ run_network_analysis() {
     
     print_boxed "AĞ BİLGİLERİ" "$CYAN"
     echo -e "${BOLD}Yerel IP:${RESET}      $ip_addr"
-    echo -e "${BOLD}Dış IP:${RESET}        $ext_ip"
+    echo -e "${BOLD}${TXT_NET_PUBIP:-Dış IP Adresi:}${RESET} $ext_ip"
     echo -e "${BOLD}Ağ Geçidi:${RESET}     $gateway"
     echo -e "${BOLD}DNS Sunucuları:${RESET} $dns_servers"
     echo ""
@@ -23,6 +23,16 @@ run_network_analysis() {
         print_success "İnternet bağlantısı BAŞARILI (Cloudflare DNS'e erişilebiliyor)."
     else
         print_error "İnternet bağlantısı HATALI (1.1.1.1'e ulaşılamadı)."
+    fi
+    echo ""
+
+    print_boxed "${TXT_NET_PORTS:-DİNLENEN PORTLAR (LISTENING)}" "$GREEN"
+    if command -v ss >/dev/null 2>&1; then
+        echo -e "${GRAY}$(ss -tuln | awk 'NR>1 {print $5}' | rev | cut -d: -f1 | rev | sort -n | uniq | tr '\n' ' ')${RESET}"
+    elif command -v netstat >/dev/null 2>&1; then
+        echo -e "${GRAY}$(netstat -tuln | awk 'NR>2 {print $4}' | rev | cut -d: -f1 | rev | sort -n | uniq | tr '\n' ' ')${RESET}"
+    else
+        echo -e "${GRAY}ss veya netstat bulunamadı.${RESET}"
     fi
     echo ""
 }
